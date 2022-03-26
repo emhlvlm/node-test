@@ -1,0 +1,26 @@
+node {
+    def app
+	
+    stage('Clone repository') {
+
+        checkout scm
+	env.GIT_COMMIT = sh(script: "git rev-parse HEAD", returnStdout: true).trim()
+    }
+	
+    stage('Build image') {
+
+        app = docker.build("emhlvlm/app")
+    }
+
+    stage('Test image') {
+        app.withRun('-p 7000:7000') {c ->
+            sh 'mocha test/test.js'
+        }
+    }
+    stage('Deliver image') {
+        docker.withRegistry('https://registry.hub.docker.com', 'docker-test') {
+            app.push("${GIT_COMMIT}")
+	    app.push('latest')
+            } 
+    }
+}

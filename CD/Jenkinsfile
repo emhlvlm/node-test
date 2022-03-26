@@ -1,0 +1,8 @@
+node {
+    stage('Pull and deploy') {
+       sshagent(credentials: ['E2Ckey']) {
+           sh 'ssh -o StrictHostKeyChecking=no ec2-user@ec2-44-202-99-104.compute-1.amazonaws.com "docker pull emhlvlm/app && docker run -d -p 7000:7000 emhlvlm/app && sleep 1s && curl http://localhost:7000/"'
+       }
+    }
+	
+}
